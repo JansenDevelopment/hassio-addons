@@ -8,7 +8,6 @@ arch:
   - aarch64
   - amd64
 #https://github.com/codenotary/cas/issues/296
-#codenotary: patrick.broetto@gmail.com
 stage: stable
 host_network: true
 timeout: 30
