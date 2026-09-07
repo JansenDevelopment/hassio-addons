@@ -3,7 +3,8 @@
   "private": true,
   "description": "Pins eufy-security-ws to a patched eufy-security-client (Mega/v6 fixes).",
   "dependencies": {
-    "eufy-security-ws": "3.1.0"
+    "eufy-security-ws": "3.1.0",
+    "eufy-security-client": "github:JansenDevelopment/eufy-security-client#mega-fixes"
   },
   "overrides": {
     "eufy-security-client": "github:JansenDevelopment/eufy-security-client#mega-fixes"

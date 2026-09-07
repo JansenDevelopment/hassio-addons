@@ -21,11 +21,19 @@ RUN \
     && node --version \
     # Fail the build if the base ever regresses below Node 24.
     && case "$(node --version)" in v24.*) ;; *) echo "Expected Node 24, got $(node --version)" >&2; exit 1 ;; esac \
-    && npm install --force \
+    && npm install \
     # The fork's own "prepare" script compiles it, so assert the output exists
     # rather than discovering an empty package at runtime.
     && test -f node_modules/eufy-security-client/build/index.js \
+    # Assert we got the PATCHED client, not the stock one from the registry.
+    # Checking only that "a build exists" is not enough: npm will happily
+    # resolve eufy-security-client to the unpatched 4.1.1 release and the
+    # add-on then starts fine but drops every device on the next restart.
+    # isSuccessfulResponseCode exists only in the fork.
+    && grep -q "isSuccessfulResponseCode" node_modules/eufy-security-client/build/http/api.js \
+    && grep -q "retrying register_push_token" node_modules/eufy-security-client/build/http/megaTransition.js \
     && node -e "require('eufy-security-client')" \
+    && echo "OK: patched eufy-security-client verified" \
     && npm cache clean --force
 
 COPY run.sh /
