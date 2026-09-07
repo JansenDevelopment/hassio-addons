@@ -2,11 +2,12 @@
   "name": "eufy-security-ws-fix",
   "private": true,
   "description": "Pins eufy-security-ws to a patched eufy-security-client (Mega/v6 fixes).",
+  "_client": "JansenDevelopment/eufy-security-client tag v4.1.1-mega.1 — pinned by commit so a rebuild is reproducible. To move to a newer fork build: retag there, then update BOTH shas below and bump version: in config.yaml.",
   "dependencies": {
     "eufy-security-ws": "3.1.0",
-    "eufy-security-client": "github:JansenDevelopment/eufy-security-client#mega-fixes"
+    "eufy-security-client": "github:JansenDevelopment/eufy-security-client#15844d4ea8b2fd7ee4ab7c7ca4732ecf0636b24e"
   },
   "overrides": {
-    "eufy-security-client": "github:JansenDevelopment/eufy-security-client#mega-fixes"
+    "eufy-security-client": "github:JansenDevelopment/eufy-security-client#15844d4ea8b2fd7ee4ab7c7ca4732ecf0636b24e"
   }
 }

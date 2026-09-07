@@ -40,6 +40,26 @@ sinds 2026-07-20, dus die PR's worden niet meer gemerged.
 > **Let op:** Eufy zet de legacy-API's stap voor stap uit. Dit is een verlengstuk met
 > beperkte levensduur, geen structurele oplossing.
 
+## Versies en updaten
+
+De add-on pint de client op een **commit**, niet op een branch, zodat een herbouw altijd
+hetzelfde oplevert. Nu vastgezet op
+[`v4.1.1-mega.1`](https://github.com/JansenDevelopment/eufy-security-client/releases/tag/v4.1.1-mega.1)
+(`15844d4`).
+
+Een nieuwere client uitrollen:
+
+1. Commit de fix op `mega-fixes` in de client-fork en zet er een tag op.
+2. Vervang in `eufy-security-ws-fix/package.json` de SHA op **beide** plekken
+   (`dependencies` en `overrides`).
+3. Verhoog `version:` in `eufy-security-ws-fix/config.yaml` — zonder bump biedt Home
+   Assistant geen update aan.
+4. In HA: Add-on Store verversen, dan Update op de add-on.
+
+De build faalt bewust als de patch niet in de geinstalleerde client zit (zie de
+grep-asserts in de Dockerfile), zodat een stille terugval naar de ongepatchte
+registry-versie niet ongemerkt kan gebeuren.
+
 ## Aanbevolen: bewaking
 
 De storing hierboven is **stil**: de add-on blijft draaien, de integratie blijft draaien, en
