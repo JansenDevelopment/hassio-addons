@@ -1,6 +1,6 @@
 name: ankerctl (AnkerMake M5)
 description: Monitor and control an AnkerMake M5 3D printer without Anker's apps, with Home Assistant MQTT discovery
-version: 1.0.3-2
+version: 1.0.3-5
 slug: "ankerctl"
 url: https://github.com/JansenDevelopment/hassio-addons
 init: false

@@ -52,7 +52,25 @@ if [ "$(opt .ha_mqtt)" = "true" ]; then
         HA_MQTT_PORT="$(echo "$MQTT" | jq -r '.data.port')"
         HA_MQTT_USER="$(echo "$MQTT" | jq -r '.data.username // empty')"
         HA_MQTT_PASSWORD="$(echo "$MQTT" | jq -r '.data.password // empty')"
+        # host_network apps do not always resolve the internal app hostnames;
+        # the Mosquitto app publishes 1883 on the host, so localhost works too.
+        if ! getent hosts "$HA_MQTT_HOST" >/dev/null 2>&1; then
+            HA_MQTT_HOST=127.0.0.1
+        fi
         export HA_MQTT_HOST HA_MQTT_PORT HA_MQTT_USER HA_MQTT_PASSWORD
+        # The env vars only seed a NEW config: once default.json exists (after
+        # the Anker login) its home_assistant block wins. Write ours into it so
+        # the broker credentials from the Supervisor are actually used.
+        CFG=/data/config/default.json
+        if [ -f "$CFG" ]; then
+            jq --arg h "$HA_MQTT_HOST" --arg p "$HA_MQTT_PORT" --arg u "$HA_MQTT_USER" --arg pw "$HA_MQTT_PASSWORD" \
+                '.home_assistant = ((.home_assistant // {}) + {enabled: true, mqtt_host: $h, mqtt_port: ($p|tonumber),
+                  mqtt_username: $u, mqtt_password: $pw,
+                  discovery_prefix: ((.home_assistant.discovery_prefix // "") | if . == "" then "homeassistant" else . end)})' \
+                "$CFG" > "$CFG.tmp" && mv "$CFG.tmp" "$CFG"
+            chown ankerctl:ankerctl "$CFG"
+            chmod 600 "$CFG"
+        fi
         log "MQTT discovery on ${HA_MQTT_HOST}:${HA_MQTT_PORT}"
     else
         log "ha_mqtt is on, but there is no MQTT broker app (install Mosquitto): discovery off"
@@ -60,4 +78,30 @@ if [ "$(opt .ha_mqtt)" = "true" ]; then
 fi
 
 log "Starting ankerctl web server on port ${ANKERCTL_PORT}"
-exec /app/entrypoint.sh ankerctl webserver --listen "0.0.0.0:${ANKERCTL_PORT}"
+
+if [ "${HA_MQTT_ENABLED:-false}" != "true" ]; then
+    exec /app/entrypoint.sh ankerctl webserver --listen "0.0.0.0:${ANKERCTL_PORT}"
+fi
+
+# Upstream 1.0.3 registers the Home Assistant worker as "homeassistant" but
+# auto-starts "ha" ("unknown service"), so discovery never starts on boot.
+# Saving the MQTT settings once through the API restarts the worker; the
+# credentials are already in default.json, so only "enabled" is sent.
+/app/entrypoint.sh ankerctl webserver --listen "0.0.0.0:${ANKERCTL_PORT}" &
+CHILD=$!
+trap 'kill -INT "$CHILD" 2>/dev/null; wait "$CHILD"; exit 0' INT TERM
+
+i=0
+until curl -fsS "http://127.0.0.1:${ANKERCTL_PORT}/api/health" >/dev/null 2>&1; do
+    i=$((i + 1))
+    if [ "$i" -ge 60 ] || ! kill -0 "$CHILD" 2>/dev/null; then break; fi
+    sleep 1
+done
+if curl -fsS -X POST -H "Content-Type: application/json" ${API_KEY:+-H "X-Api-Key: $API_KEY"} \
+        -d '{"enabled": true}' "http://127.0.0.1:${ANKERCTL_PORT}/api/settings/mqtt" >/dev/null 2>&1; then
+    log "Home Assistant discovery started"
+else
+    log "Could not start Home Assistant discovery through the API (no printer configured yet?)"
+fi
+
+wait "$CHILD"

@@ -23,6 +23,18 @@ and CLI to monitor and control an AnkerMake M5 without Anker's apps.
 | `upload_rate_mbps` | Upload speed to the printer. |
 | `api_key` | Optional; when set, uploads, G-code and printer control need it. Set one if the LAN is not trusted. |
 
+## Workarounds in this app (ankerctl 1.0.3)
+
+- The `HA_MQTT_*` environment variables only seed a new config. Once you log in, the
+  `home_assistant` block in `default.json` wins (with `enabled: false` and an empty discovery
+  prefix). On every start this app writes the Supervisor's broker credentials, `enabled: true`
+  and prefix `homeassistant` into that block.
+- Upstream registers the Home Assistant worker as `homeassistant` but auto-starts `ha`
+  (`unknown service "ha"` in the log), so discovery never starts on boot. The app saves the
+  MQTT settings once through the API after start-up, which restarts the worker.
+- An empty prefix publishes discovery to `/sensor/...`; Home Assistant ignores that. If you
+  ever see such retained topics, clear them with an empty retained message.
+
 ## Network
 
 - **Status and commands** go through Anker's cloud MQTT broker (TCP 8789). No cloud, no status.
