@@ -23,6 +23,7 @@ and CLI to monitor and control an AnkerMake M5 without Anker's apps.
 | `upload_rate_mbps` | Upload speed to the printer. |
 | `api_key` | Optional; when set, uploads, G-code and printer control need it. Set one if the LAN is not trusted. |
 | `printer_ip` | Optional; the printer's fixed IP. The PPPP handshake then goes straight to it (unicast) instead of as a broadcast, so it can cross a VPN or routed subnet. See "Printer in another subnet". |
+| `cors_origins` | Optional; comma-separated exact origins (`http://<ha-ip>:8123`) that may call the API from a browser, e.g. a dashboard served by Home Assistant. Patched binary (`cors.sh`); empty = no CORS, as upstream. |
 | `debug` | Optional; starts ankerctl with `--dev`: debug logging and `/api/debug/*` (services, video stats, PPPP reconnect). Troubleshooting only. |
 
 ## Workarounds in this app (ankerctl 1.0.3)
