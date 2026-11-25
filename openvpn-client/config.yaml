@@ -1,0 +1,39 @@
+name: OpenVPN client (split tunnel)
+description: OpenVPN client that routes only the networks you choose through the tunnel, e.g. the LAN of another house
+version: 0.1.0
+slug: "openvpn_client"
+url: https://github.com/JansenDevelopment/hassio-addons
+init: false
+arch:
+  - aarch64
+  - amd64
+stage: experimental
+startup: services
+boot: auto
+# The tunnel must live in the host's network namespace, so that Home Assistant
+# Core (which also runs on the host network) can reach the remote LAN.
+host_network: true
+privileged:
+  - NET_ADMIN
+devices:
+  - /dev/net/tun
+map:
+  - addon_config:rw
+options:
+  config_file: client.ovpn
+  username: ""
+  password: ""
+  routes:
+    - 192.168.31.0/24
+  ignore_pushed_routes: true
+  ignore_pushed_dns: true
+  verbosity: 3
+schema:
+  config_file: str
+  username: str?
+  password: password?
+  routes:
+    - match(^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])/([0-9]|[12][0-9]|3[0-2])$)
+  ignore_pushed_routes: bool
+  ignore_pushed_dns: bool
+  verbosity: int(0,6)
