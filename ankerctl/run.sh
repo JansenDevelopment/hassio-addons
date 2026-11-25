@@ -43,6 +43,14 @@ else
     log "No API key: anyone on the LAN can send prints and G-code"
 fi
 
+# Debug: ankerctl's dev mode (--dev) logs at debug level and opens
+# /api/debug/*. Only for troubleshooting; leave it off otherwise.
+DEV=""
+if [ "$(opt .debug)" = "true" ]; then
+    DEV="--dev"
+    log "Debug mode on: debug logging and /api/debug/* are enabled"
+fi
+
 # --- fixed printer IP ---------------------------------------------------------
 # ankerctl finds the printer with a LAN broadcast. That does not cross a VPN or
 # a routed subnet; with a known IP it talks to the printer directly (unicast).
@@ -95,14 +103,14 @@ fi
 log "Starting ankerctl web server on port ${ANKERCTL_PORT}"
 
 if [ "${HA_MQTT_ENABLED:-false}" != "true" ]; then
-    exec /app/entrypoint.sh ankerctl webserver --listen "0.0.0.0:${ANKERCTL_PORT}"
+    exec /app/entrypoint.sh ankerctl $DEV webserver --listen "0.0.0.0:${ANKERCTL_PORT}"
 fi
 
 # Upstream 1.0.3 registers the Home Assistant worker as "homeassistant" but
 # auto-starts "ha" ("unknown service"), so discovery never starts on boot.
 # Saving the MQTT settings once through the API restarts the worker; the
 # credentials are already in default.json, so only "enabled" is sent.
-/app/entrypoint.sh ankerctl webserver --listen "0.0.0.0:${ANKERCTL_PORT}" &
+/app/entrypoint.sh ankerctl $DEV webserver --listen "0.0.0.0:${ANKERCTL_PORT}" &
 CHILD=$!
 trap 'kill -INT "$CHILD" 2>/dev/null; wait "$CHILD"; exit 0' INT TERM
 
