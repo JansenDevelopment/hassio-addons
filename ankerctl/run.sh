@@ -43,6 +43,21 @@ else
     log "No API key: anyone on the LAN can send prints and G-code"
 fi
 
+# --- fixed printer IP ---------------------------------------------------------
+# ankerctl finds the printer with a LAN broadcast. That does not cross a VPN or
+# a routed subnet; with a known IP it talks to the printer directly (unicast).
+PRINTER_IP="$(opt .printer_ip)"
+if [ -n "$PRINTER_IP" ] && [ -f /data/config/default.json ]; then
+    jq --arg ip "$PRINTER_IP" '.printers |= (if (. | length) > 0 then (.[0].ip_addr = $ip) else . end)' \
+        /data/config/default.json > /data/config/default.json.tmp \
+        && mv /data/config/default.json.tmp /data/config/default.json
+    chown ankerctl:ankerctl /data/config/default.json
+    chmod 600 /data/config/default.json
+    # patched binary: handshake goes straight to this IP (pppp-unicast.sh)
+    export ANKERCTL_PPPP_UNICAST=1
+    log "Printer IP fixed at ${PRINTER_IP} (unicast PPPP handshake)"
+fi
+
 # --- Home Assistant MQTT discovery ------------------------------------------
 if [ "$(opt .ha_mqtt)" = "true" ]; then
     MQTT="$(curl -fsS -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" http://supervisor/services/mqtt 2>/dev/null || true)"
