@@ -40,6 +40,19 @@ sinds 2026-07-20, dus die PR's worden niet meer gemerged.
 > **Let op:** Eufy zet de legacy-API's stap voor stap uit. Dit is een verlengstuk met
 > beperkte levensduur, geen structurele oplossing.
 
+### OpenVPN client (split tunnel)
+
+Map `openvpn-client/`. OpenVPN-client die **alleen de opgegeven netwerken** door de tunnel
+stuurt, bedoeld om het LAN van een ander huis te bereiken via de OpenVPN-server op de router
+daar. Negeert standaard alle meegestuurde routes (ook `redirect-gateway`) en DNS, zodat HA
+niet al zijn verkeer via dat huis stuurt. Profiel = het geëxporteerde `.ovpn` in de
+config-map van de app; gebruikersnaam en wachtwoord in de app-opties. Zie
+[`openvpn-client/DOCS.md`](openvpn-client/DOCS.md), ook voor de botsing met Tailscale
+`accept_routes`.
+
+Bestaande add-ons (bijv. larsklitzke/homeassistant-openvpn-client) volgen de routes van de
+server, kennen geen `auth-user-pass` en zijn jaren niet bijgewerkt; daarom deze.
+
 ## Versies en updaten
 
 De add-on pint de client op een **commit**, niet op een branch, zodat een herbouw altijd
