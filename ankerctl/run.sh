@@ -51,6 +51,14 @@ if [ "$(opt .debug)" = "true" ]; then
     log "Debug mode on: debug logging and /api/debug/* are enabled"
 fi
 
+# CORS for trusted web apps (patched binary, cors.sh), e.g. the HA tablet app
+# on http://<ha-ip>:8123. Comma-separated exact origins.
+CORS_ORIGINS="$(opt .cors_origins)"
+if [ -n "$CORS_ORIGINS" ]; then
+    export ANKERCTL_CORS_ORIGINS="$CORS_ORIGINS"
+    log "CORS allowed for: ${CORS_ORIGINS}"
+fi
+
 # --- fixed printer IP ---------------------------------------------------------
 # ankerctl finds the printer with a LAN broadcast. That does not cross a VPN or
 # a routed subnet; with a known IP it talks to the printer directly (unicast).

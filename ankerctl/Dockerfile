@@ -1,8 +1,8 @@
 ARG BUILD_FROM
 
 # ---------------------------------------------------------------------------
-# Build ankerctl from source with one patch: unicast PPPP handshake to a known
-# printer IP (see pppp-unicast.sh). Same tag as the upstream image in
+# Build ankerctl from source with two patches: unicast PPPP handshake to a known
+# printer IP (pppp-unicast.sh) and optional CORS for trusted origins (cors.sh). Same tag as the upstream image in
 # build.yaml, so the rest of the binary is identical.
 # ---------------------------------------------------------------------------
 FROM golang:1.25-alpine AS builder
@@ -10,10 +10,11 @@ ARG ANKERCTL_REF=v1.0.3
 RUN apk add --no-cache git bash curl
 RUN git clone --depth 1 --branch "${ANKERCTL_REF}" https://github.com/Django1982/ankerctl_go_remake /src
 WORKDIR /src
-COPY pppp-unicast.sh /tmp/pppp-unicast.sh
+COPY pppp-unicast.sh cors.sh /tmp/
 RUN sh /tmp/pppp-unicast.sh \
+    && sh /tmp/cors.sh \
     && bash scripts/prepare-web-vendor.sh \
-    && CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w -X main.Version=${ANKERCTL_REF#v}-unicast" \
+    && CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w -X main.Version=${ANKERCTL_REF#v}-patched" \
         -o /out/ankerctl ./cmd/ankerctl/
 
 # ---------------------------------------------------------------------------
