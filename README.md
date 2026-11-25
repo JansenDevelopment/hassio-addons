@@ -53,6 +53,16 @@ config-map van de app; gebruikersnaam en wachtwoord in de app-opties. Zie
 Bestaande add-ons (bijv. larsklitzke/homeassistant-openvpn-client) volgen de routes van de
 server, kennen geen `auth-user-pass` en zijn jaren niet bijgewerkt; daarom deze.
 
+### ankerctl (AnkerMake M5)
+
+Map `ankerctl/`. Verpakt [ankerctl](https://github.com/Django1982/ankerctl_go_remake) (Go-versie,
+image `ghcr.io/django1982/ankerctl`, tag zonder `v`) als app: webinterface op poort 4470,
+OctoPrint-compatibele upload voor slicers, en MQTT-discovery naar HA via de Mosquitto-app
+(inloggegevens van de Supervisor). Config, Anker-login en printersleutels staan in `/data`
+(symlink vanaf `/home/ankerctl/.ankerctl`, dat ankerctl hard gebruikt). Status en commando's
+lopen via Anker's cloud-MQTT; upload en camera via PPPP (UDP). Zie
+[`ankerctl/DOCS.md`](ankerctl/DOCS.md).
+
 ## Versies en updaten
 
 De add-on pint de client op een **commit**, niet op een branch, zodat een herbouw altijd
