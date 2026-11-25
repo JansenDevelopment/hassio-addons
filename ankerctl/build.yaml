@@ -1,0 +1,5 @@
+# The upstream image is multi-arch (linux/amd64, linux/arm64); Docker picks
+# the right one. Pinned to a release so a rebuild is reproducible.
+build_from:
+  aarch64: ghcr.io/django1982/ankerctl:1.0.3
+  amd64: ghcr.io/django1982/ankerctl:1.0.3
