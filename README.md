@@ -63,6 +63,15 @@ OctoPrint-compatibele upload voor slicers, en MQTT-discovery naar HA via de Mosq
 lopen via Anker's cloud-MQTT; upload en camera via PPPP (UDP). Zie
 [`ankerctl/DOCS.md`](ankerctl/DOCS.md).
 
+### SDRconnect server (SDRplay)
+
+Map `sdrconnect/`. Draait [SDRconnect](https://sdrplay.com/sdrconnect/) als server
+(`SDRconnect --server`, zoals SDRplay's eigen systemd-dienst) voor een RSP op USB; bedienen
+gebeurt met SDRconnect op een andere pc. Ubuntu 24.04 als basis (SDRplay ondersteunt alleen
+Ubuntu LTS). **De binaries staan niet in deze (openbare) repo**: de licentie staat geen
+verspreiding toe, dus de build haalt ze bij sdrplay.com op en controleert de SHA-256 uit
+`install.sh`. Start pas na `accept_licence: true`. Zie [`sdrconnect/DOCS.md`](sdrconnect/DOCS.md).
+
 ## Versies en updaten
 
 De add-on pint de client op een **commit**, niet op een branch, zodat een herbouw altijd

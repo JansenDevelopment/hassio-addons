@@ -1,0 +1,5 @@
+# SDRplay only supports Ubuntu LTS up to 24.04 (glibc, .NET runtime libraries),
+# so not the Alpine base images. The image is multi-arch.
+build_from:
+  aarch64: ubuntu:24.04
+  amd64: ubuntu:24.04
