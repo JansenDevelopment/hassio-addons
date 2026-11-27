@@ -92,6 +92,12 @@ De build faalt bewust als de patch niet in de geinstalleerde client zit (zie de
 grep-asserts in de Dockerfile), zodat een stille terugval naar de ongepatchte
 registry-versie niet ongemerkt kan gebeuren.
 
+**Let op, Supervisor 2026.11:** `build_from` in `build.yaml` wordt genegeerd; de Supervisor geeft
+zelf `BUILD_FROM=ghcr.io/home-assistant/base:latest` (Alpine) mee. Gezien op 27-11-2026 bij de
+eerste build van `sdrconnect/`. Een app die een andere basis nodig heeft, zet die vast in de
+`Dockerfile` (`FROM ubuntu:24.04`). Bij een herbouw van `ankerctl` (basis = het upstream-image)
+en `eufy-security-ws-fix` dus eerst controleren welk image er echt gebruikt wordt.
+
 ## Aanbevolen: bewaking
 
 De storing hierboven is **stil**: de add-on blijft draaien, de integratie blijft draaien, en

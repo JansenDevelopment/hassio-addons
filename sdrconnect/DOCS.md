@@ -42,7 +42,6 @@ SHA-256 that SDRplay publishes.
   in under a minute, the server starts and waits for a device. Not yet tested with an RSP.
 - The image is based on Ubuntu 24.04 (fixed in the `Dockerfile`): the Supervisor ignores
   `build_from` and would otherwise give the Alpine base.
-
 - Settings of SDRconnect are kept in the app's `/data`, so they survive updates and are
   part of Home Assistant backups.
 - Per the licence (section 6) SDRconnect may send details of the radio to an SDRplay server
