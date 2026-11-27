@@ -1,6 +1,6 @@
 name: SDRconnect server (SDRplay)
 description: Runs SDRplay's SDRconnect as a network server for an RSP on USB; use it from SDRconnect on another computer
-version: 1.0.10-1
+version: 1.0.10-2
 slug: "sdrconnect"
 url: https://github.com/JansenDevelopment/hassio-addons
 init: false
@@ -10,14 +10,16 @@ arch:
 stage: experimental
 startup: application
 boot: auto
-# The server talks to its clients over the network (QUIC/UDP and a WebSocket API);
-# on the host network no port mapping is needed and the ports are the app's own.
+# The server listens on TCP `port` (SDRconnect's default 50000) on all interfaces;
+# on the host network no port mapping is needed.
 host_network: true
 # The RSP is a plain USB device (vendor 1df7); the app talks to it with libusb.
 usb: true
 udev: true
 options:
   accept_licence: false
+  port: 50000
 schema:
   accept_licence: bool
+  port: port
   extra_args: str?

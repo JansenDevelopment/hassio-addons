@@ -23,15 +23,20 @@ export HOME=/data/home
 export XDG_CONFIG_HOME=/data/home/.config
 export XDG_DATA_HOME=/data/home/.local/share
 
-if ls /dev/bus/usb >/dev/null 2>&1; then
-    rsp="$(grep -l '^1df7$' /sys/bus/usb/devices/*/idVendor 2>/dev/null | wc -l || true)"
-    log "SDRplay devices on USB: ${rsp}"
-else
-    log "No USB bus visible in the container"
-fi
-
+PORT="$(opt .port)"
 EXTRA="$(opt .extra_args)"
-log "Starting SDRconnect --server ${EXTRA}"
 cd /opt/sdrconnect
-# shellcheck disable=SC2086  # extra_args are meant to be split into words
-exec ./SDRconnect --server ${EXTRA}
+
+# Without an RSP the server prints "No streamable source found" and exits. Keep the
+# app running and try again, so plugging the RSP in later is enough.
+RETRY=30
+while true; do
+    rsp="$(grep -lx '1df7' /sys/bus/usb/devices/*/idVendor 2>/dev/null | wc -l || true)"
+    log "SDRplay devices on USB: ${rsp}"
+    ./SDRconnect --server --listdevices 2>&1 | sed 's/^/[sdrconnect] /' || true
+    log "Starting SDRconnect --server --port=${PORT} ${EXTRA}"
+    # shellcheck disable=SC2086  # extra_args are meant to be split into words
+    ./SDRconnect --server "--port=${PORT}" ${EXTRA} || true
+    log "SDRconnect stopped; trying again in ${RETRY} s"
+    sleep "${RETRY}"
+done

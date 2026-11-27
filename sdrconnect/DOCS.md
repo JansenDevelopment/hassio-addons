@@ -22,18 +22,26 @@ SHA-256 that SDRplay publishes.
 2. Install this app. The build downloads ~125 MB from sdrplay.com.
 3. Read the SDRplay licence (the app log shows it on the first start). If you accept it,
    set `accept_licence` to `true` and start the app.
-4. The log shows how many SDRplay devices it sees on USB.
+4. The log lists the SDRplay devices it finds. Without an RSP the server stops at once
+   ("No streamable source found"); the app then tries again every 30 seconds, so plugging
+   the RSP in later is enough.
 5. On your computer, open SDRconnect and connect to the server at the IP address of the
-   Home Assistant machine.
+   Home Assistant machine, port 50000 (TCP).
 
 ## Options
 
 | Option | Meaning |
 |---|---|
 | `accept_licence` | You accept the SDRplay end user licence. Without it the app does not start. |
-| `extra_args` | Extra command-line arguments for `SDRconnect --server`. Normally empty. |
+| `port` | TCP port the server listens on. Default 50000, SDRconnect's own default. |
+| `extra_args` | Extra arguments for `SDRconnect --server`, e.g. `--max-clients=2`, `--hwser=<serial>`, `--samplerate=2000000`, `--antenna=1`, `--exclusive`. `--help` prints them all in the log. Normally empty. |
 
 ## Notes
+
+- Tested on Home Assistant OS (amd64, Supervisor 2026.11) without an RSP: the image builds
+  in under a minute, the server starts and waits for a device. Not yet tested with an RSP.
+- The image is based on Ubuntu 24.04 (fixed in the `Dockerfile`): the Supervisor ignores
+  `build_from` and would otherwise give the Alpine base.
 
 - Settings of SDRconnect are kept in the app's `/data`, so they survive updates and are
   part of Home Assistant backups.
